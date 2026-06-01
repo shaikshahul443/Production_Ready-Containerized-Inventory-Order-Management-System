@@ -1,0 +1,12 @@
+# Ignore build and dependency folders
+**/node_modules
+**/dist
+**/.env
+**/.git
+**/*.log
+**/binaries
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.db
+**/.DS_Store

@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockFlow | Inventory & Order Management System (Prototype)</title>
+  <!-- Outfit & Inter Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- React CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Embed the full glassmorphic dark mode styles here */
+    :root {
+      --bg-primary: #0a0b10;
+      --bg-secondary: #11131e;
+      --bg-tertiary: #181b2c;
+      --accent-primary: #6366f1;
+      --accent-secondary: #a855f7;
+      --accent-teal: #14b8a6;
+      --accent-blue: #3b82f6;
+      --accent-orange: #f59e0b;
+      --accent-red: #ef4444;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      --border-glass: rgba(255, 255, 255, 0.06);
+      --bg-glass: rgba(255, 255, 255, 0.03);
+      --bg-glass-hover: rgba(255, 255, 255, 0.07);
+      --shadow-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --shadow-accent: 0 0 20px rgba(99, 102, 241, 0.35);
+      
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(20, 184, 166, 0.03) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    /* App Container */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      width: 260px;
+      background: rgba(17, 19, 30, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border-glass);
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+    }
+
+    .brand-logo {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-accent);
+      color: white;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex-grow: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      font-size: 0.95rem;
+      font-family: var(--font-body);
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: var(--text-main);
+      background: var(--bg-glass-hover);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+      border: 1px solid rgba(99, 102, 241, 0.25);
+    }
+
+    .nav-item i {
+      width: 20px;
+      height: 20px;
+    }
+
+    .sidebar-footer {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      border-top: 1px solid var(--border-glass);
+      padding-top: 1.5rem;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex-grow: 1;
+      margin-left: 260px;
+      padding: 2.5rem 3rem;
+      width: calc(100% - 260px);
+    }
+
+    /* Top Header */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .page-title h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #fff, var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .page-title p {
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-size: 0.95rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 10px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      font-family: var(--font-body);
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+      color: white;
+      box-shadow: var(--shadow-accent);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-secondary {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-glass-hover);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      color: #fca5a5;
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+      border-radius: 6px;
+    }
+
+    /* Glassmorphic Cards */
+    .glass-card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-glow);
+      transition: all 0.3s ease;
+      margin-bottom: 2rem;
+    }
+
+    /* Dashboard Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .metric-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .metric-info h3 {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-family: var(--font-display);
+      font-weight: 700;
+      margin-top: 0.5rem;
+      background: linear-gradient(135deg, #ffffff, #e2e8f0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .metric-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .metric-icon.indigo { color: var(--accent-primary); }
+    .metric-icon.purple { color: var(--accent-secondary); }
+    .metric-icon.teal { color: var(--accent-teal); }
+    .metric-icon.blue { color: var(--accent-blue); }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    /* Tables Styling */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .custom-table th {
+      padding: 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-glass);
+    }
+
+    .custom-table td {
+      padding: 1.1rem 1rem;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      vertical-align: middle;
+    }
+
+    .custom-table tr:hover {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.65rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge.pending { background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); border: 1px solid rgba(245, 158, 11, 0.25); }
+    .badge.completed { background: rgba(20, 184, 166, 0.15); color: var(--accent-teal); border: 1px solid rgba(20, 184, 166, 0.25); }
+    .badge.cancelled { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.25); }
+    .badge.success { background: rgba(20, 184, 166, 0.15); color: var(--accent-teal); }
+    .badge.warning { background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); }
+    .badge.danger { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 580px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 2.25rem;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-glass);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+      border-top: 1px solid var(--border-glass);
+      padding-top: 1.25rem;
+    }
+
+    .status-select {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-glass);
+      color: var(--text-main);
+      padding: 0.35rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .low-stock-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: rgba(245, 158, 11, 0.05);
+      border: 1px solid rgba(245, 158, 11, 0.15);
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+    }
+
+    .low-stock-badge {
+      font-weight: 700;
+      color: var(--accent-orange);
+    }
+
+    .alert-banner {
+      padding: 0.85rem 1.25rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .alert-banner.error {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      color: #fca5a5;
+    }
+
+    .alert-banner.success {
+      background: rgba(20, 184, 166, 0.12);
+      border: 1px solid rgba(20, 184, 166, 0.25);
+      color: #99f6e4;
+    }
+
+    .order-items-builder {
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+    }
+
+    .builder-row {
+      display: grid;
+      grid-template-columns: 3fr 1.5fr 1fr auto;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      align-items: center;
+    }
+
+    .total-summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.5rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border-top: 1px dashed var(--border-glass);
+      padding-top: 0.75rem;
+    }
+
+    .total-summary-row span:last-child {
+      font-size: 1.3rem;
+      background: linear-gradient(135deg, var(--accent-teal), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      width: 320px;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-input-wrapper i {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-control {
+      padding-left: 2.5rem;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0.25rem;
+      border-radius: 4px;
+    }
+
+    .action-btn:hover {
+      background: var(--bg-glass-hover);
+      color: var(--text-main);
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 1rem;
+      opacity: 0.2;
+    }
+
+    .empty-state h3 {
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .app-container { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: relative; }
+      .main-content { margin-left: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <!-- React code with Babel compiler compiling on-the-fly -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Load Mock Data if localStorage is empty
+    const defaultProducts = [
+      { id: 1, sku: "LAPTOP-PRO-14", name: "MacBook Pro 14", description: "M3 chip, 16GB RAM, 512GB SSD", price: 1599.00, stock: 12 },
+      { id: 2, sku: "PHONE-ULTRA-24", name: "Samsung Galaxy S24 Ultra", description: "512GB Storage, Titanium Black", price: 1299.99, stock: 4 },
+      { id: 3, sku: "HEADPHONE-MX5", name: "Sony WH-1000XM5", description: "Wireless Noise Cancelling Headphones", price: 349.99, stock: 20 },
+      { id: 4, sku: "MONITOR-CURVE-34", name: "Dell 34 Curved Monitor", description: "WQHD UltraSharp Display", price: 549.99, stock: 0 }
+    ];
+
+    const defaultCustomers = [
+      { id: 1, name: "Bruce Wayne", email: "bruce@waynecorp.com", phone: "+1 (555) 732-2342" },
+      { id: 2, name: "Clark Kent", email: "clark@dailyplanet.com", phone: "+1 (555) 234-9843" },
+      { id: 3, name: "Diana Prince", email: "diana@themyscira.gov", phone: "+1 (555) 902-1847" }
+    ];
+
+    const defaultOrders = [
+      {
+        id: 1001,
+        customer_id: 1,
+        customer_name: "Bruce Wayne",
+        customer_email: "bruce@waynecorp.com",
+        order_date: new Date().toISOString(),
+        status: "Pending",
+        total_price: 3198.00,
+        items: [
+          { id: 1, product_id: 1, product_name: "MacBook Pro 14", product_sku: "LAPTOP-PRO-14", quantity: 2, unit_price: 1599.00 }
+        ]
+      }
+    ];
+
+    function App() {
+      // LocalStorage Sync state
+      const [products, setProducts] = useState(() => {
+        const local = localStorage.getItem('sf_products');
+        return local ? JSON.parse(local) : defaultProducts;
+      });
+
+      const [customers, setCustomers] = useState(() => {
+        const local = localStorage.getItem('sf_customers');
+        return local ? JSON.parse(local) : defaultCustomers;
+      });
+
+      const [orders, setOrders] = useState(() => {
+        const local = localStorage.getItem('sf_orders');
+        return local ? JSON.parse(local) : defaultOrders;
+      });
+
+      useEffect(() => {
+        localStorage.setItem('sf_products', JSON.stringify(products));
+      }, [products]);
+
+      useEffect(() => {
+        localStorage.setItem('sf_customers', JSON.stringify(customers));
+      }, [customers]);
+
+      useEffect(() => {
+        localStorage.setItem('sf_orders', JSON.stringify(orders));
+      }, [orders]);
+
+      // Navigation & Modals
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [alert, setAlert] = useState(null);
+      
+      const [productSearch, setProductSearch] = useState('');
+      const [customerSearch, setCustomerSearch] = useState('');
+      const [orderSearch, setOrderSearch] = useState('');
+
+      const [productModal, setProductModal] = useState({ show: false, mode: 'create', data: null });
+      const [customerModal, setCustomerModal] = useState({ show: false, mode: 'create', data: null });
+      const [orderModal, setOrderModal] = useState({ show: false });
+
+      // Form bindings
+      const [productForm, setProductForm] = useState({ sku: '', name: '', description: '', price: '', stock: '0' });
+      const [customerForm, setCustomerForm] = useState({ name: '', email: '', phone: '' });
+      const [orderForm, setOrderForm] = useState({ customer_id: '', items: [{ product_id: '', quantity: 1 }] });
+
+      // Trigger Lucide Icons refresh
+      useEffect(() => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      });
+
+      const showAlert = (type, message) => {
+        setAlert({ type, message });
+        setTimeout(() => setAlert(null), 5000);
+      };
+
+      // ----------------- CRUD PRODUCTS -----------------
+      const handleProductSubmit = (e) => {
+        e.preventDefault();
+        const skuUpper = productForm.sku.toUpperCase();
+
+        if (productModal.mode === 'create') {
+          // Unique SKU Check
+          if (products.some(p => p.sku === skuUpper)) {
+            showAlert('error', `Product SKU "${skuUpper}" already exists!`);
+            return;
+          }
+          const newProduct = {
+            id: Date.now(),
+            sku: skuUpper,
+            name: productForm.name,
+            description: productForm.description,
+            price: parseFloat(productForm.price),
+            stock: parseInt(productForm.stock)
+          };
+          setProducts([...products, newProduct]);
+          showAlert('success', `Product "${productForm.name}" created.`);
+        } else {
+          setProducts(products.map(p => p.id === productModal.data.id ? {
+            ...p,
+            name: productForm.name,
+            description: productForm.description,
+            price: parseFloat(productForm.price),
+            stock: parseInt(productForm.stock)
+          } : p));
+          showAlert('success', `Product "${productForm.name}" updated.`);
+        }
+        setProductModal({ show: false, mode: 'create', data: null });
+      };
+
+      const deleteProduct = (id, name) => {
+        if (confirm(`Delete product "${name}"?`)) {
+          setProducts(products.filter(p => p.id !== id));
+          showAlert('success', `Product "${name}" deleted.`);
+        }
+      };
+
+      // ----------------- CRUD CUSTOMERS -----------------
+      const handleCustomerSubmit = (e) => {
+        e.preventDefault();
+        const emailLower = customerForm.email.toLowerCase();
+
+        if (customerModal.mode === 'create') {
+          // Unique Email Check
+          if (customers.some(c => c.email.toLowerCase() === emailLower)) {
+            showAlert('error', `Customer email "${customerForm.email}" already exists!`);
+            return;
+          }
+          const newCustomer = {
+            id: Date.now(),
+            name: customerForm.name,
+            email: emailLower,
+            phone: customerForm.phone
+          };
+          setCustomers([...customers, newCustomer]);
+          showAlert('success', `Customer "${customerForm.name}" registered.`);
+        } else {
+          // Unique Email Check for edit
+          if (customers.some(c => c.email.toLowerCase() === emailLower && c.id !== customerModal.data.id)) {
+            showAlert('error', `Customer email "${customerForm.email}" already exists!`);
+            return;
+          }
+          setCustomers(customers.map(c => c.id === customerModal.data.id ? {
+            ...c,
+            name: customerForm.name,
+            email: emailLower,
+            phone: customerForm.phone
+          } : c));
+          showAlert('success', `Customer "${customerForm.name}" updated.`);
+        }
+        setCustomerModal({ show: false, mode: 'create', data: null });
+      };
+
+      const deleteCustomer = (id, name) => {
+        if (confirm(`Delete customer "${name}"? Associated orders will also be deleted.`)) {
+          setCustomers(customers.filter(c => c.id !== id));
+          setOrders(orders.filter(o => o.customer_id !== id));
+          showAlert('success', `Customer "${name}" deleted.`);
+        }
+      };
+
+      // ----------------- ORDER MANAGEMENT -----------------
+      const handleOrderSubmit = (e) => {
+        e.preventDefault();
+        const customer = customers.find(c => c.id === parseInt(orderForm.customer_id));
+        if (!customer) return;
+
+        // Stock check
+        const orderItems = [];
+        let orderTotal = 0;
+
+        for (const item of orderForm.items) {
+          const prod = products.find(p => p.id === parseInt(item.product_id));
+          if (!prod) return;
+          if (prod.stock < item.quantity) {
+            showAlert('error', `Insufficient stock for ${prod.name}. Available: ${prod.stock}`);
+            return;
+          }
+          orderItems.push({
+            id: Date.now() + Math.random(),
+            product_id: prod.id,
+            product_name: prod.name,
+            product_sku: prod.sku,
+            quantity: item.quantity,
+            unit_price: prod.price
+          });
+          orderTotal += prod.price * item.quantity;
+        }
+
+        // Deduct stocks
+        setProducts(products.map(p => {
+          const orderedItem = orderForm.items.find(item => parseInt(item.product_id) === p.id);
+          if (orderedItem) {
+            return { ...p, stock: p.stock - orderedItem.quantity };
+          }
+          return p;
+        }));
+
+        // Add Order
+        const newOrder = {
+          id: 1000 + orders.length + 1,
+          customer_id: customer.id,
+          customer_name: customer.name,
+          customer_email: customer.email,
+          order_date: new Date().toISOString(),
+          status: 'Pending',
+          total_price: orderTotal,
+          items: orderItems
+        };
+
+        setOrders([newOrder, ...orders]);
+        setOrderModal({ show: false });
+        showAlert('success', 'Order created. Inventory stock reduced successfully.');
+      };
+
+      const handleStatusChange = (orderId, newStatus) => {
+        const order = orders.find(o => o.id === orderId);
+        if (!order) return;
+        
+        const oldStatus = order.status;
+        if (oldStatus === newStatus) return;
+
+        // Restoring Stock on Cancel
+        if (newStatus === "Cancelled" && oldStatus !== "Cancelled") {
+          setProducts(products.map(p => {
+            const orderedItem = order.items.find(item => item.product_id === p.id);
+            return orderedItem ? { ...p, stock: p.stock + orderedItem.quantity } : p;
+          }));
+        }
+        // Deducting Stock on reinstate
+        else if (oldStatus === "Cancelled" && newStatus !== "Cancelled") {
+          // Verify stock first
+          for (const item of order.items) {
+            const prod = products.find(p => p.id === item.product_id);
+            if (!prod || prod.stock < item.quantity) {
+              showAlert('error', `Cannot reinstate. Product "${prod ? prod.name : 'Unknown'}" is out of stock.`);
+              return;
+            }
+          }
+          setProducts(products.map(p => {
+            const orderedItem = order.items.find(item => item.product_id === p.id);
+            return orderedItem ? { ...p, stock: p.stock - orderedItem.quantity } : p;
+          }));
+        }
+
+        setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+        showAlert('success', `Order status updated to ${newStatus}`);
+      };
+
+      const deleteOrder = (id) => {
+        if (confirm('Delete this order? Reverts stock if not already cancelled.')) {
+          const order = orders.find(o => o.id === id);
+          if (order && order.status !== 'Cancelled') {
+            // Restore stocks
+            setProducts(products.map(p => {
+              const orderedItem = order.items.find(item => item.product_id === p.id);
+              return orderedItem ? { ...p, stock: p.stock + orderedItem.quantity } : p;
+            }));
+          }
+          setOrders(orders.filter(o => o.id !== id));
+          showAlert('success', 'Order deleted.');
+        }
+      };
+
+      // Metrics calculation
+      const totalRevenue = orders
+        .filter(o => o.status !== 'Cancelled')
+        .reduce((sum, o) => sum + o.total_price, 0);
+
+      const lowStockItems = products.filter(p => p.stock < 5);
+
+      return (
+        <div className="app-container">
+          <aside className="sidebar">
+            <div className="brand-section">
+              <div className="brand-logo">
+                <i data-lucide="package"></i>
+              </div>
+              <span className="brand-name">StockFlow</span>
+            </div>
+            
+            <nav className="nav-menu">
+              <button className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+                <i data-lucide="layout-dashboard"></i> Dashboard
+              </button>
+              <button className={`nav-item ${activeTab === 'products' ? 'active' : ''}`} onClick={() => setActiveTab('products')}>
+                <i data-lucide="box"></i> Products
+              </button>
+              <button className={`nav-item ${activeTab === 'customers' ? 'active' : ''}`} onClick={() => setActiveTab('customers')}>
+                <i data-lucide="users"></i> Customers
+              </button>
+              <button className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
+                <i data-lucide="shopping-cart"></i> Orders
+              </button>
+            </nav>
+            <div className="sidebar-footer">StockFlow Client (Mock)</div>
+          </aside>
+
+          <main className="main-content">
+            <header className="top-header">
+              <div className="page-title">
+                <h1>
+                  {activeTab === 'dashboard' && 'Dashboard Overview'}
+                  {activeTab === 'products' && 'Catalog'}
+                  {activeTab === 'customers' && 'Clients Directory'}
+                  {activeTab === 'orders' && 'Fulfillments'}
+                </h1>
+                <p>Mock client running on LocalStorage. No server required.</p>
+              </div>
+
+              <div>
+                {activeTab === 'products' && (
+                  <button className="btn btn-primary" onClick={() => {
+                    setProductForm({ sku: '', name: '', description: '', price: '', stock: '0' });
+                    setProductModal({ show: true, mode: 'create', data: null });
+                  }}>
+                    <i data-lucide="plus"></i> Add Product
+                  </button>
+                )}
+                {activeTab === 'customers' && (
+                  <button className="btn btn-primary" onClick={() => {
+                    setCustomerForm({ name: '', email: '', phone: '' });
+                    setCustomerModal({ show: true, mode: 'create', data: null });
+                  }}>
+                    <i data-lucide="plus"></i> Add Customer
+                  </button>
+                )}
+                {activeTab === 'orders' && (
+                  <button className="btn btn-primary" onClick={() => {
+                    setOrderForm({ customer_id: '', items: [{ product_id: '', quantity: 1 }] });
+                    setOrderModal({ show: true });
+                  }}>
+                    <i data-lucide="plus"></i> Create Order
+                  </button>
+                )}
+              </div>
+            </header>
+
+            {alert && (
+              <div className={`alert-banner ${alert.type}`}>
+                <i data-lucide={alert.type === 'error' ? 'alert-triangle' : 'info'}></i>
+                <span>{alert.message}</span>
+              </div>
+            )}
+
+            {/* DASHBOARD TAB */}
+            {activeTab === 'dashboard' && (
+              <div>
+                <div className="metrics-grid">
+                  <div className="glass-card metric-card">
+                    <div className="metric-info">
+                      <h3>Total Sales</h3>
+                      <div className="metric-value">${totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                    </div>
+                    <div className="metric-icon indigo"><i data-lucide="trending-up"></i></div>
+                  </div>
+                  <div className="glass-card metric-card">
+                    <div className="metric-info">
+                      <h3>Orders</h3>
+                      <div className="metric-value">{orders.length}</div>
+                    </div>
+                    <div className="metric-icon purple"><i data-lucide="shopping-cart"></i></div>
+                  </div>
+                  <div className="glass-card metric-card">
+                    <div className="metric-info">
+                      <h3>Active SKUs</h3>
+                      <div className="metric-value">{products.length}</div>
+                    </div>
+                    <div className="metric-icon teal"><i data-lucide="box"></i></div>
+                  </div>
+                  <div className="glass-card metric-card">
+                    <div className="metric-info">
+                      <h3>Customers</h3>
+                      <div className="metric-value">{customers.length}</div>
+                    </div>
+                    <div className="metric-icon blue"><i data-lucide="users"></i></div>
+                  </div>
+                </div>
+
+                <div className="dashboard-grid">
+                  <div className="glass-card">
+                    <h2 style={{ marginBottom: '1rem' }}>Recent Transactions</h2>
+                    {orders.length === 0 ? <p>No orders yet.</p> : (
+                      <table className="custom-table">
+                        <thead>
+                          <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {orders.slice(0, 5).map(o => (
+                            <tr key={o.id}>
+                              <td>#{o.id}</td>
+                              <td>{o.customer_name}</td>
+                              <td>{new Date(o.order_date).toLocaleDateString()}</td>
+                              <td>${o.total_price.toFixed(2)}</td>
+                              <td><span className={`badge ${o.status.toLowerCase()}`}>{o.status}</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+
+                  <div className="glass-card">
+                    <h2 style={{ marginBottom: '1rem', color: 'var(--accent-orange)' }}>Low Stock Warnings ({lowStockItems.length})</h2>
+                    {lowStockItems.length === 0 ? <p>Stock level healthy.</p> : (
+                      lowStockItems.map(item => (
+                        <div className="low-stock-item" key={item.id}>
+                          <div>
+                            <div><strong>{item.name}</strong></div>
+                            <div style={{fontSize:'0.75rem', color:'var(--text-muted)'}}>{item.sku}</div>
+                          </div>
+                          <span className="low-stock-badge">{item.stock} left</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PRODUCTS TAB */}
+            {activeTab === 'products' && (
+              <div className="glass-card">
+                <div className="search-input-wrapper">
+                  <i data-lucide="search"></i>
+                  <input type="text" className="form-control search-control" placeholder="Search catalog..." value={productSearch} onChange={e => setProductSearch(e.target.value)} />
+                </div>
+                <table className="custom-table">
+                  <thead>
+                    <tr>
+                      <th>SKU</th>
+                      <th>Name</th>
+                      <th>Price</th>
+                      <th>Stock Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase()) || p.sku.toLowerCase().includes(productSearch.toLowerCase())).map(p => (
+                      <tr key={p.id}>
+                        <td style={{fontFamily:'monospace', color:'var(--accent-teal)'}}>{p.sku}</td>
+                        <td><strong>{p.name}</strong></td>
+                        <td>${p.price.toFixed(2)}</td>
+                        <td>
+                          <span className={`badge ${p.stock === 0 ? 'danger' : p.stock < 5 ? 'warning' : 'success'}`}>
+                            {p.stock === 0 ? 'Out of stock' : `${p.stock} units`}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="actions-cell">
+                            <button className="action-btn" onClick={() => {
+                              setProductForm({ sku: p.sku, name: p.name, description: p.description || '', price: p.price, stock: p.stock.toString() });
+                              setProductModal({ show: true, mode: 'edit', data: p });
+                            }}><i data-lucide="edit-2"></i></button>
+                            <button className="action-btn" onClick={() => deleteProduct(p.id, p.name)}><i data-lucide="trash-2"></i></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* CUSTOMERS TAB */}
+            {activeTab === 'customers' && (
+              <div className="glass-card">
+                <div className="search-input-wrapper">
+                  <i data-lucide="search"></i>
+                  <input type="text" className="form-control search-control" placeholder="Search customer directory..." value={customerSearch} onChange={e => setCustomerSearch(e.target.value)} />
+                </div>
+                <table className="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase()) || c.email.toLowerCase().includes(customerSearch.toLowerCase())).map(c => (
+                      <tr key={c.id}>
+                        <td><strong>{c.name}</strong></td>
+                        <td>{c.email}</td>
+                        <td>{c.phone || '-'}</td>
+                        <td>
+                          <div className="actions-cell">
+                            <button className="action-btn" onClick={() => {
+                              setCustomerForm({ name: c.name, email: c.email, phone: c.phone || '' });
+                              setCustomerModal({ show: true, mode: 'edit', data: c });
+                            }}><i data-lucide="edit-2"></i></button>
+                            <button className="action-btn" onClick={() => deleteCustomer(c.id, c.name)}><i data-lucide="trash-2"></i></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* ORDERS TAB */}
+            {activeTab === 'orders' && (
+              <div className="glass-card">
+                <div className="search-input-wrapper">
+                  <i data-lucide="search"></i>
+                  <input type="text" className="form-control search-control" placeholder="Search orders..." value={orderSearch} onChange={e => setOrderSearch(e.target.value)} />
+                </div>
+                <table className="custom-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Customer</th>
+                      <th>Items</th>
+                      <th>Total</th>
+                      <th>Fulfillment</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.filter(o => o.customer_name.toLowerCase().includes(orderSearch.toLowerCase()) || o.id.toString().includes(orderSearch)).map(o => (
+                      <tr key={o.id}>
+                        <td>#{o.id}</td>
+                        <td>
+                          <div><strong>{o.customer_name}</strong></div>
+                          <div style={{fontSize:'0.75rem', color:'var(--text-muted)'}}>{o.customer_email}</div>
+                        </td>
+                        <td>
+                          {o.items.map(item => (
+                            <div key={item.id} style={{fontSize:'0.85rem'}}>
+                              <span style={{color:'var(--text-muted)'}}>{item.quantity}x</span> {item.product_name}
+                            </div>
+                          ))}
+                        </td>
+                        <td><strong>${o.total_price.toFixed(2)}</strong></td>
+                        <td>
+                          <select className="status-select" value={o.status} onChange={e => handleStatusChange(o.id, e.target.value)}>
+                            <option value="Pending">Pending</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                          </select>
+                        </td>
+                        <td>
+                          <button className="action-btn" onClick={() => deleteOrder(o.id)}><i data-lucide="trash-2"></i></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </main>
+
+          {/* PRODUCT MODAL */}
+          {productModal.show && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h2>{productModal.mode === 'create' ? 'Add Product SKU' : 'Edit Product'}</h2>
+                  <button className="modal-close" onClick={() => setProductModal({ show: false, mode: 'create', data: null })}><i data-lucide="x"></i></button>
+                </div>
+                <form onSubmit={handleProductSubmit}>
+                  <div className="form-group">
+                    <label>SKU (Unique)</label>
+                    <input type="text" className="form-control" required disabled={productModal.mode === 'edit'} value={productForm.sku} placeholder="e.g. MON-PRO-27" onChange={e => setProductForm({ ...productForm, sku: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>Name</label>
+                    <input type="text" className="form-control" required value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea className="form-control" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} />
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Price ($)</label>
+                      <input type="number" step="0.01" min="0.01" className="form-control" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label>Stock Qty</label>
+                      <input type="number" min="0" className="form-control" required value={productForm.stock} onChange={e => setProductForm({ ...productForm, stock: e.target.value })} />
+                    </div>
+                  </div>
+                  <div className="form-actions">
+                    <button type="button" className="btn btn-secondary" onClick={() => setProductModal({ show: false })}>Cancel</button>
+                    <button type="submit" className="btn btn-primary">{productModal.mode === 'create' ? 'Create SKU' : 'Save'}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* CUSTOMER MODAL */}
+          {customerModal.show && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h2>{customerModal.mode === 'create' ? 'Register Customer' : 'Edit Customer'}</h2>
+                  <button className="modal-close" onClick={() => setCustomerModal({ show: false, mode: 'create', data: null })}><i data-lucide="x"></i></button>
+                </div>
+                <form onSubmit={handleCustomerSubmit}>
+                  <div className="form-group">
+                    <label>Name</label>
+                    <input type="text" className="form-control" required value={customerForm.name} placeholder="Bruce Wayne" onChange={e => setCustomerForm({ ...customerForm, name: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>Email Address</label>
+                    <input type="email" className="form-control" required value={customerForm.email} placeholder="bruce@wayne.corp" onChange={e => setCustomerForm({ ...customerForm, email: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>Phone</label>
+                    <input type="text" className="form-control" value={customerForm.phone} placeholder="+1-555-0199" onChange={e => setCustomerForm({ ...customerForm, phone: e.target.value })} />
+                  </div>
+                  <div className="form-actions">
+                    <button type="button" className="btn btn-secondary" onClick={() => setCustomerModal({ show: false })}>Cancel</button>
+                    <button type="submit" className="btn btn-primary">{customerModal.mode === 'create' ? 'Create' : 'Save'}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* ORDER MODAL */}
+          {orderModal.show && (
+            <div className="modal-overlay">
+              <div className="modal-content" style={{ maxWidth: '640px' }}>
+                <div className="modal-header">
+                  <h2>Create Customer Order</h2>
+                  <button className="modal-close" onClick={() => setOrderModal({ show: false })}><i data-lucide="x"></i></button>
+                </div>
+                <form onSubmit={handleOrderSubmit}>
+                  <div className="form-group">
+                    <label>Customer</label>
+                    <select className="form-control" required value={orderForm.customer_id} onChange={e => setOrderForm({ ...orderForm, customer_id: e.target.value })}>
+                      <option value="">-- Choose customer --</option>
+                      {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.email})</option>)}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                      <span>Shopping Cart</span>
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => setOrderForm({ ...orderForm, items: [...orderForm.items, { product_id: '', quantity: 1 }] })}><i data-lucide="plus"></i> Add item</button>
+                    </label>
+
+                    <div className="order-items-builder">
+                      {orderForm.items.map((item, index) => {
+                        const selectedP = products.find(p => p.id === parseInt(item.product_id));
+                        const isOutOfStock = selectedP && selectedP.stock < item.quantity;
+                        return (
+                          <div className="builder-row" key={index}>
+                            <select className="form-control" required value={item.product_id} onChange={e => {
+                              const updated = [...orderForm.items];
+                              updated[index].product_id = e.target.value;
+                              setOrderForm({ ...orderForm, items: updated });
+                            }}>
+                              <option value="">-- Choose SKU --</option>
+                              {products.map(p => <option key={p.id} value={p.id}>{p.name} (Avail: {p.stock})</option>)}
+                            </select>
+
+                            <div style={{color:'var(--text-muted)', fontSize:'0.9rem', textAlign:'center'}}>
+                              {selectedP ? `$${selectedP.price.toFixed(2)}` : '$0.00'}
+                            </div>
+
+                            <input type="number" min="1" className="form-control" required value={item.quantity} onChange={e => {
+                              const updated = [...orderForm.items];
+                              updated[index].quantity = parseInt(e.target.value) || 0;
+                              setOrderForm({ ...orderForm, items: updated });
+                            }} />
+
+                            <button type="button" className="action-btn delete" disabled={orderForm.items.length === 1} onClick={() => {
+                              setOrderForm({ ...orderForm, items: orderForm.items.filter((_, i) => i !== index) });
+                            }}><i data-lucide="x"></i></button>
+
+                            {isOutOfStock && (
+                              <div style={{ gridColumn: 'span 4', color: 'var(--accent-red)', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+                                ⚠ Insufficient stock. Only {selectedP.stock} available.
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="total-summary-row">
+                    <span>Estimated Total:</span>
+                    <span>${orderForm.items.reduce((sum, item) => {
+                      const p = products.find(p => p.id === parseInt(item.product_id));
+                      return sum + (p ? p.price * item.quantity : 0);
+                    }, 0).toFixed(2)}</span>
+                  </div>
+
+                  <div className="form-actions">
+                    <button type="button" className="btn btn-secondary" onClick={() => setOrderModal({ show: false })}>Cancel</button>
+                    <button type="submit" className="btn btn-primary" disabled={orderForm.items.some(item => {
+                      const p = products.find(p => p.id === parseInt(item.product_id));
+                      return !item.product_id || (p && p.stock < item.quantity);
+                    })}>Confirm Order</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
